@@ -11,12 +11,6 @@ from sklearn import preprocessing
 
 train = pd.read_csv('train.csv')
 
-# Check for Na
-train.isnull().sum().sort_values(ascending = False)/len(train) *100
-
-#Check for columns with pool
-len(train['PoolArea'][train['PoolArea'] != 0]) 
-
 #Drop unimportante columns and columns with more than 50% of Na
 train.drop(columns = ['Id','PoolQC','MiscFeature','LotFrontage'], inplace = True)
 
@@ -31,11 +25,51 @@ train['MoSold'] = train['MoSold'].astype('category')
 train['pool'] = train['PoolArea'].apply(lambda x : 1 if x > 0  else 0 )
 
 #Create Column for houses with Alley. 1 has alley access o doesnt has alley access
-train['has_alley'] = train['Alley'].apply(lambda x : 1 if x == 'Grvl' or x == 'Pave' else 0)
+train['Has_Alley'] = train['Alley'].apply(lambda x : 1 if x == 'Grvl' or x == 'Pave' else 0)
+
+#Dummy code Street column. 1 Pave 0 Grvl
+train['Street'] = train['Street'].apply(lambda x : 1 if x == 'Pave' else 0)
 
 #Create Column for houses with Fence
-
+train['has_fence']  = train['Fence'].apply(lambda x : 1 if x in ['MnPrv', 'GdWo', 'GdPrv', 'MnWw'] else 0)
 
 #Create Column for houses with FirePlace
+train['Fireplaces'] = train['Fireplaces'].apply(lambda x: 1 if x != 0 else 0) 
 
-#Solve for Na values
+#Replace value of OverQual
+def map_quality(x):
+    if x <= 10 and x >= 7:
+        return 'good'
+    elif x <= 6 and x >= 4:
+        return 'average'
+    else :
+        return 'bad'
+
+train['OverallQual'] = train['OverallQual'].apply(map_quality) 
+
+#Replace value of Overall conditions of the house
+def map_cond(x):
+    if x <= 10 and x >= 7:
+        return 'good'
+    elif x <= 6 and x >= 4:
+        return 'average'
+    else :
+        return 'bad'
+train['OverallCond'] = train['OverallCond'].apply(map_cond)
+# Drop columns 
+train.drop(columns = ['PoolArea','Alley','Fence',], inplace = True)
+
+#Choose max 15 columns of interest
+include = ['MSZoning','LotArea','Street',
+           'Has_Alley','BldgType','HouseStyle',
+           'OverallQual','OverallCond', 
+           'YearBuilt','HeatingQC','GrLivArea',
+           'BedroomAbvGr','GarageCars','SaleCondition',
+           'has_fence','SalePrice']
+
+train= train[include]
+
+#check for Nas
+train.isnull().sum()
+
+
