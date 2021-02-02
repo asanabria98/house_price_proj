@@ -15,12 +15,6 @@ train = pd.read_csv('train.csv')
 train.drop(columns = ['Id','PoolQC','MiscFeature','LotFrontage'], inplace = True)
 
 
-#Change column type
-
-train['MSSubClass'] = train['MSSubClass'].astype('category')
-
-train['MoSold'] = train['MoSold'].astype('category')
-
 #Create Column for houses with pools. 1 has a pool 0 doesnt has a pool
 train['pool'] = train['PoolArea'].apply(lambda x : 1 if x > 0  else 0 )
 
@@ -65,11 +59,11 @@ include = ['MSZoning','LotArea','Street',
            'OverallQual','OverallCond', 
            'YearBuilt','HeatingQC','GrLivArea',
            'BedroomAbvGr','GarageCars','SaleCondition',
-           'has_fence','SalePrice']
+           'has_fence','pool','SalePrice']
 
 train= train[include]
 
-#check for Nas
-train.isnull().sum()
+#convert type object to category
+train = train.apply(lambda x : x.astype('category') if x.dtype == 'object' else x)
 
 
