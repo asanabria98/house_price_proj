@@ -67,3 +67,4 @@ train= train[include]
 train = train.apply(lambda x : x.astype('category') if x.dtype == 'object' else x)
 
 
+train.to_csv(r'cleaned_data.csv')
